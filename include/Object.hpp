@@ -5,9 +5,9 @@
 
 struct Intersection {
 	bool isIntersect;
-	Vector3 intersection;
+	double t;
 
-	Intersection(bool isIntersect, Vector3 const intersection): isIntersect(isIntersect), intersection(intersection) {};
+	Intersection(bool isIntersect, double t): isIntersect(isIntersect), t(t) {};
 };
 
 class Object {

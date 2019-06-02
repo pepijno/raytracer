@@ -14,7 +14,7 @@ Intersection Sphere::intersect(Ray const& ray) const {
 	double const delta = b*b - 4 * a * c;
 
 	if (delta < 1e-4) {
-		return Intersection(false, Vector3(0.0, 0.0, 0.0));
+		return Intersection(false, 0.0);
 	}
 
 	double const t1 = (-b - sqrt(delta))/(a * 2);
@@ -22,5 +22,5 @@ Intersection Sphere::intersect(Ray const& ray) const {
 
 	double const t = (t1 < t2) ? t1 : t2; // get the first intersection only
 
-	return Intersection(true, origin + direction * t);
+	return Intersection(true, t);
 }
