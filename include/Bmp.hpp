@@ -4,56 +4,79 @@
 #include <string>
 #include <vector>
 
-struct BmpFileHeader {
-	uint16_t fileType{0x4D42};          // File type always BM which is 0x4D42
-	uint32_t fileSize{0};               // Size of the file (in bytes)
-	uint16_t reserved1{0};               // Reserved, always 0
-	uint16_t reserved2{0};               // Reserved, always 0
-	uint32_t offsetData{0};             // Start position of pixel data (bytes from the beginning of the file)
-};
+const int bytesPerPixel = 3; /// red, green, blue
+const int fileHeaderSize = 14;
+const int infoHeaderSize = 40;
 
-struct BmpInfoHeader {
-	uint32_t size{ 0 };                      // Size of this header (in bytes)
-	int32_t width{ 0 };                      // width of bitmap in pixels
-	int32_t height{ 0 };                     // width of bitmap in pixels
-	//       (if positive, bottom-up, with origin in lower left corner)
-	//       (if negative, top-down, with origin in upper left corner)
-	uint16_t planes{ 1 };                    // No. of planes for the target device, this is always 1
-	uint16_t bitCount{ 0 };                 // No. of bits per pixel
-	uint32_t compression{ 0 };               // 0 or 3 - uncompressed. THIS PROGRAM CONSIDERS ONLY UNCOMPRESSED Bmp images
-	uint32_t sizeImage{ 0 };                // 0 - for uncompressed images
-	int32_t xPixelsPerMeter{ 0 };
-	int32_t yPixelsPerMeter{ 0 };
-	uint32_t colorsUsed{ 0 };               // No. color indexes in the color table. Use 0 for the max number of colors allowed by bitCount
-	uint32_t colorsImportant{ 0 };          // No. of colors used for displaying the bitmap. If 0 all colors are required
-};
+inline unsigned char* createBitmapFileHeader(int height, int width, int paddingSize){
+	int fileSize = fileHeaderSize + infoHeaderSize + (bytesPerPixel*width+paddingSize) * height;
 
-struct BmpColorHeader {
-	uint32_t redMask{ 0x00ff0000 };         // Bit mask for the red channel
-	uint32_t greenMask{ 0x0000ff00 };       // Bit mask for the green channel
-	uint32_t blueMask{ 0x000000ff };        // Bit mask for the blue channel
-	uint32_t alphaMask{ 0xff000000 };       // Bit mask for the alpha channel
-	uint32_t colorSpaceRype{ 0x73524742 }; // Default "sRGB" (0x73524742)
-	uint32_t unused[16]{ 0 };                // Unused data for sRGB color space
-};
+	static unsigned char fileHeader[] = {
+		0,0, /// signature
+		0,0,0,0, /// image file size in bytes
+		0,0,0,0, /// reserved
+		0,0,0,0, /// start of pixel array
+	};
 
-class Bmp {
-private:
-	BmpFileHeader fileHeader;
-	BmpInfoHeader bmpInfoHeader;
-	BmpColorHeader bmpColorHeader;
-	std::vector<uint8_t> data;
-	uint32_t rowStride{ 0 };
+	fileHeader[ 0] = (unsigned char)('B');
+	fileHeader[ 1] = (unsigned char)('M');
+	fileHeader[ 2] = (unsigned char)(fileSize    );
+	fileHeader[ 3] = (unsigned char)(fileSize>> 8);
+	fileHeader[ 4] = (unsigned char)(fileSize>>16);
+	fileHeader[ 5] = (unsigned char)(fileSize>>24);
+	fileHeader[10] = (unsigned char)(fileHeaderSize + infoHeaderSize);
 
-	uint32_t makeStrideAligned(uint32_t alignStride);
+	return fileHeader;
+}
 
-	void writeHeaders(std::ofstream& of);
-	void writeHeadersAndData(std::ofstream& of);
-public:
-	Bmp(size_t height, size_t width);
+inline unsigned char* createBitmapInfoHeader(int height, int width){
+	static unsigned char infoHeader[] = {
+		0,0,0,0, /// header size
+		0,0,0,0, /// image width
+		0,0,0,0, /// image height
+		0,0, /// number of color planes
+		0,0, /// bits per pixel
+		0,0,0,0, /// compression
+		0,0,0,0, /// image size
+		0,0,0,0, /// horizontal resolution
+		0,0,0,0, /// vertical resolution
+		0,0,0,0, /// colors in color table
+		0,0,0,0, /// important color count
+	};
 
-	void write(std::string const& fileName);
+	infoHeader[ 0] = (unsigned char)(infoHeaderSize);
+	infoHeader[ 4] = (unsigned char)(width    );
+	infoHeader[ 5] = (unsigned char)(width>> 8);
+	infoHeader[ 6] = (unsigned char)(width>>16);
+	infoHeader[ 7] = (unsigned char)(width>>24);
+	infoHeader[ 8] = (unsigned char)(height    );
+	infoHeader[ 9] = (unsigned char)(height>> 8);
+	infoHeader[10] = (unsigned char)(height>>16);
+	infoHeader[11] = (unsigned char)(height>>24);
+	infoHeader[12] = (unsigned char)(1);
+	infoHeader[14] = (unsigned char)(bytesPerPixel*8);
 
-	void writePixel(uint32_t width, uint32_t height, uint32_t R, uint32_t G, uint32_t B);
-};
+	return infoHeader;
+}
 
+inline void generateBitmapImage(unsigned char *image, int height, int width, const char* imageFileName){
+
+	unsigned char padding[3] = {0, 0, 0};
+	int paddingSize = (4 - (width*bytesPerPixel) % 4) % 4;
+
+	unsigned char* fileHeader = createBitmapFileHeader(height, width, paddingSize);
+	unsigned char* infoHeader = createBitmapInfoHeader(height, width);
+
+	FILE* imageFile = fopen(imageFileName, "wb");
+
+	fwrite(fileHeader, 1, fileHeaderSize, imageFile);
+	fwrite(infoHeader, 1, infoHeaderSize, imageFile);
+
+	int i;
+	for(i=0; i<height; i++){
+		fwrite(image+(i*width*bytesPerPixel), bytesPerPixel, width, imageFile);
+		fwrite(padding, 1, paddingSize, imageFile);
+	}
+
+	fclose(imageFile);
+}

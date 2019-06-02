@@ -1,4 +1,5 @@
 #include "Camera.hpp"
+#include <iostream>
 
 Ray Camera::createRay(uint32_t widthN, uint32_t heightN, uint32_t maxWidth, uint32_t maxHeight) const {
 	double const widthFactor = ((double) widthN)/maxWidth;
@@ -10,5 +11,6 @@ Ray Camera::createRay(uint32_t widthN, uint32_t heightN, uint32_t maxWidth, uint
 	Vector3 dirFromZero = this->screenUL + diffWidth * widthFactor + diffHeight * heightFactor;
 	Vector3 direction = this->origin - dirFromZero;
 
+	std::cout << this->origin << " " << direction << "\n";
 	return Ray(this->origin, direction);
 };
