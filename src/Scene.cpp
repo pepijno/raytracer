@@ -1,7 +1,6 @@
-#include "Bmp.hpp"
 #include "Scene.hpp"
 
-#include <iostream>
+#include <fstream>
 #include <limits>
 #include <random>
 
@@ -53,27 +52,30 @@ void Scene::createImage(std::string const fileName) const {
 	int height = 400;
 	int width = 400;
 	int samplingAmount = 100;
-	unsigned char image[height][width][bytesPerPixel];
 	const char* imageFileName = fileName.c_str();
 
-	int i, j, s;
+	std::ofstream ofs(imageFileName, std::ios::out | std::ios::binary);
+
+	ofs << "P6\n" << width << " " << height << "\n255\n";
+
 	std::uniform_real_distribution<double> unif(-0.5, 0.5);
 	std::default_random_engine re;
-	for(i=0; i<height; i++){
-		for(j=0; j<width; j++){
+	for(int i = 0; i < height; ++i) {
+		for(int j = 0; j < width; ++j) {
 			Color color = BLACK;
-			for(s = 0; s < samplingAmount; ++s) {
+			for(int s = 0; s < samplingAmount; ++s) {
 				double const dw = unif(re);
 				double const dh = unif(re);
 				Ray ray = this->camera.createRay(i, j, (double)(width + dw), (double)(height + dh));
 				color = color + this->traceRay(ray);
 			}
 			color = color / samplingAmount;
-			image[i][j][2] = (unsigned char)(color.R); ///red
-			image[i][j][1] = (unsigned char)(color.G); ///green
-			image[i][j][0] = (unsigned char)(color.B); ///blue
+
+			ofs << (unsigned char)(std::min(double(255), std::max(double(0), color.R)))
+				<< (unsigned char)(std::min(double(255), std::max(double(0), color.G)))
+				<< (unsigned char)(std::min(double(255), std::max(double(0), color.B)));
 		}
 	}
 
-	generateBitmapImage((unsigned char *)image, height, width, imageFileName);
+	ofs.close();
 }
