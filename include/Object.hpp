@@ -11,12 +11,13 @@ struct Intersection {
 };
 
 struct Color {
-	uint32_t R;
-	uint32_t G;
-	uint32_t B;
-	Color(uint32_t R, uint32_t G, uint32_t B) : R(R), G(G), B(B) {};
+	double R;
+	double G;
+	double B;
+	Color(double R, double G, double B) : R(R), G(G), B(B) {};
 
 	Color operator*(double const d) { return Color(this->R * d, this->G * d, this->B * d); };
+	Color operator/(double const d) { return Color(this->R / d, this->G / d, this->B / d); };
 	Color operator+(Color const d) { return Color(this->R + d.R, this->G + d.G, this->B + d.B); };
 };
 

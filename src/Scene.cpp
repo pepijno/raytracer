@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <limits>
+#include <random>
 
 void Scene::addObject(Object* object) {
 	this->objects.emplace_back(std::move(object));
@@ -51,14 +52,23 @@ Color Scene::traceRay(Ray const& ray) const {
 void Scene::createImage(std::string const fileName) const {
 	int height = 400;
 	int width = 400;
+	int samplingAmount = 100;
 	unsigned char image[height][width][bytesPerPixel];
 	const char* imageFileName = fileName.c_str();
 
-	int i, j;
+	int i, j, s;
+	std::uniform_real_distribution<double> unif(-0.5, 0.5);
+	std::default_random_engine re;
 	for(i=0; i<height; i++){
 		for(j=0; j<width; j++){
-			Ray ray = this->camera.createRay(i, j, width, height);
-			Color color = this->traceRay(ray);
+			Color color = BLACK;
+			for(s = 0; s < samplingAmount; ++s) {
+				double const dw = unif(re);
+				double const dh = unif(re);
+				Ray ray = this->camera.createRay(i, j, (double)(width + dw), (double)(height + dh));
+				color = color + this->traceRay(ray);
+			}
+			color = color / samplingAmount;
 			image[i][j][2] = (unsigned char)(color.R); ///red
 			image[i][j][1] = (unsigned char)(color.G); ///green
 			image[i][j][0] = (unsigned char)(color.B); ///blue
