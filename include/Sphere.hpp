@@ -8,7 +8,7 @@ class Sphere : public Object {
 private:
 	double radius;
 public:
-	Sphere(Vector3 const origin, Color const color, double const radius): Object(origin, color), radius(radius) {};
+	Sphere(Vector3 const o, Color const c, double const r): Object(o, c), radius(r) {};
 
 	virtual Intersection intersect(Ray const& ray) const;
 };

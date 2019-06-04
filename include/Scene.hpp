@@ -16,7 +16,7 @@ private:
 
 	Color traceRay(Ray const& ray) const;
 public:
-	Scene(Camera camera): camera(camera) {};
+	Scene(Camera const c): camera(c) {};
 
 	void addObject(Object* object);
 	void addLight(Vector3 source);

@@ -1,5 +1,5 @@
 CC=g++
-CPPFLAGS=-std=c++1y -Wall -g
+CPPFLAGS=-std=c++1y -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
 MAIN=main.o
 EXECUTABLE=bin/raytracer
 INCLDIR=include/

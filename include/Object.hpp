@@ -7,14 +7,14 @@ struct Intersection {
 	bool isIntersect;
 	double t;
 
-	Intersection(bool isIntersect, double t): isIntersect(isIntersect), t(t) {};
+	Intersection(bool const isI, double const ti): isIntersect(isI), t(ti) {};
 };
 
 struct Color {
 	double R;
 	double G;
 	double B;
-	Color(double R, double G, double B) : R(R), G(G), B(B) {};
+	Color(double const Ri, double const Gi, double const Bi) : R(Ri), G(Gi), B(Bi) {};
 
 	Color operator*(double const d) { return Color(this->R * d, this->G * d, this->B * d); };
 	Color operator/(double const d) { return Color(this->R / d, this->G / d, this->B / d); };
@@ -32,7 +32,8 @@ protected:
 	Vector3 origin;
 	Color color;
 public:
-	Object(Vector3 const origin, Color const color): origin(origin), color(color) {};
+	Object(Vector3 const o, Color const c): origin(o), color(c) {};
+	virtual ~Object() {};
 	virtual Intersection intersect(Ray const& ray) const = 0;
 	Color getColor() const { return this->color; };
 	Vector3 getOrigin() const { return this->origin; };

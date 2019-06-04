@@ -8,7 +8,7 @@ private:
 	double y;
 	double z;
 public:
-	Vector3(double x, double y, double z): x(x), y(y), z(z) {};
+	Vector3(double const xi, double const yi, double const zi): x(xi), y(yi), z(zi) {};
 
 	double innerProduct(Vector3 const other) const;
 	Vector3 outerProduct(Vector3 const other) const;
@@ -25,5 +25,5 @@ public:
 };
 
 inline std::ostream& operator<<(std::ostream& str, Vector3 const& v) {
-	return str << "(" << v.getX() << ", " << v.getY() << ", " << v.getZ() << ") ";
+	return str << "(" << v.getX() << ", " << v.getY() << ", " << v.getZ() << ")";
 }

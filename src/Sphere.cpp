@@ -3,10 +3,10 @@
 #include <iostream>
 
 Intersection Sphere::intersect(Ray const& ray) const {
-	Vector3 const& origin = ray.getOrigin();
+	Vector3 const& rayOrigin = ray.getOrigin();
 	Vector3 const& direction = ray.getDirection();
 
-	Vector3 const v = this->origin - origin;
+	Vector3 const v = this->origin - rayOrigin;
 
 	double const tca = v.innerProduct(direction);
 	if (tca < 0) {

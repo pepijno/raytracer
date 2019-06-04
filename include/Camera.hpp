@@ -12,8 +12,8 @@ private:
 	Vector3 screenUR;
 	Vector3 screenDL;
 public:
-	Camera(Vector3 const origin, Vector3 const screenUL, Vector3 const screenUR, Vector3 const screenDL):
-			origin(origin), screenUL(screenUL), screenUR(screenUR), screenDL(screenDL) {};
+	Camera(Vector3 const o, Vector3 const sUL, Vector3 const sUR, Vector3 const sDL):
+			origin(o), screenUL(sUL), screenUR(sUR), screenDL(sDL) {};
 
 	Ray createRay(double const widthN, double const heightN, double const maxWidth, double const maxHeight) const;
 };

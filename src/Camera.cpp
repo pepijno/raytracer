@@ -12,4 +12,4 @@ Ray Camera::createRay(double const widthN, double const heightN, double const ma
 	Vector3 direction = dirFromZero - this->origin;
 
 	return Ray(this->origin, direction.normalized());
-};
+}
