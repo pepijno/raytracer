@@ -9,8 +9,7 @@ Ray Camera::createRay(uint32_t widthN, uint32_t heightN, uint32_t maxWidth, uint
 	Vector3 diffHeight = this->screenDL - this->screenUL;
 
 	Vector3 dirFromZero = this->screenUL + diffWidth * widthFactor + diffHeight * heightFactor;
-	Vector3 direction = this->origin - dirFromZero;
+	Vector3 direction = dirFromZero - this->origin;
 
-	std::cout << this->origin << " " << direction << "\n";
-	return Ray(this->origin, direction);
+	return Ray(this->origin, direction.normalized());
 };

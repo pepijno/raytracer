@@ -6,21 +6,21 @@ Intersection Sphere::intersect(Ray const& ray) const {
 	Vector3 const& origin = ray.getOrigin();
 	Vector3 const& direction = ray.getDirection();
 
-	Vector3 v = origin - this->origin;
+	Vector3 const v = this->origin - origin;
 
-	double const a = direction.lengthSquared();
-	double const b = 2 * v.innerProduct(direction);
-	double const c = v.innerProduct(v) - this->radius * this->radius;
-	double const delta = b*b - 4 * a * c;
-
-	if (delta < 1e-4) {
+	double const tca = v.innerProduct(direction);
+	if (tca < 0) {
+		return Intersection(false, 0.0);
+	}
+	
+	double const d2 = v.innerProduct(v) - tca * tca;
+	if (d2 > this->radius * this->radius) {
 		return Intersection(false, 0.0);
 	}
 
-	double const t1 = (-b - sqrt(delta))/(a * 2);
-	double const t2 = (-b + sqrt(delta))/(a * 2);
-
-	double const t = (t1 < t2) ? t1 : t2; // get the first intersection only
-
-	return Intersection(true, t);
+	double const thc = sqrt(radius * radius - d2);
+	if (tca - thc < 0) {
+		return Intersection(true, tca + thc);
+	}
+	return Intersection(true, tca - thc);
 }
