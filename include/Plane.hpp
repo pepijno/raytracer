@@ -7,7 +7,7 @@ class Plane : public Object {
 private:
 	Vector3 normal;
 public:
-	Plane(Vector3 const o, Color const c, Vector3 const n) : Object(o, c), normal(n) {};
+	Plane(Vector3 const o, Material const m, Vector3 const n) : Object(o, m), normal(n) {};
 
 	Intersection intersect(Ray const& ray) const;
 };

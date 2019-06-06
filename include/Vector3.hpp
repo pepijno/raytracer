@@ -4,11 +4,11 @@
 
 class Vector3 {
 private:
-	double x;
-	double y;
-	double z;
+	double x = 0.0;
+	double y = 0.0;
+	double z = 0.0;
 public:
-	Vector3(): x(0.0), y(0.0), z(0.0) {};
+	Vector3() {};
 	Vector3(double const xi, double const yi, double const zi): x(xi), y(yi), z(zi) {};
 
 	double innerProduct(Vector3 const other) const;

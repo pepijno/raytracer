@@ -47,7 +47,7 @@ Color Scene::traceRay(Ray const& ray) const {
 					break;
 				}
 			}
-			surfaceColor = surfaceColor + object->getColor() * transmission * std::max(0.0, normal.innerProduct(lightDirection));
+			surfaceColor = surfaceColor + object->getColor(hitPoint) * transmission * std::max(0.0, normal.innerProduct(lightDirection));
 		}
 		color = surfaceColor;
 	}
