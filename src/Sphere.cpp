@@ -10,17 +10,23 @@ Intersection Sphere::intersect(Ray const& ray) const {
 
 	double const tca = v.innerProduct(direction);
 	if (tca < 0) {
-		return Intersection(false, 0.0);
+		return Intersection(false);
 	}
 	
 	double const d2 = v.innerProduct(v) - tca * tca;
 	if (d2 > this->radius * this->radius) {
-		return Intersection(false, 0.0);
+		return Intersection(false);
 	}
 
 	double const thc = sqrt(radius * radius - d2);
 	if (tca - thc < 0) {
-		return Intersection(true, tca + thc);
+		double const t = tca + thc;
+		Vector3 const hitPoint = rayOrigin + direction * t;
+		Vector3 const normal = (hitPoint - this->getOrigin()).normalized();
+		return Intersection(true, t, hitPoint, normal);
 	}
-	return Intersection(true, tca - thc);
+	double const t = tca - thc;
+	Vector3 const hitPoint = rayOrigin + direction * t;
+	Vector3 const normal = (hitPoint - this->getOrigin()).normalized();
+	return Intersection(true, t, hitPoint, normal);
 }

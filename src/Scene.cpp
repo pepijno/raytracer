@@ -16,27 +16,33 @@ Color Scene::traceRay(Ray const& ray) const {
 	Color color = BLACK;
 	double maxT = std::numeric_limits<double>::max();
 	Object* object = nullptr;
+	Intersection intersection(false);
 	for (auto const& ptr : this->objects) {
-		Intersection intersection = ptr.get()->intersect(ray);
-		if (intersection.isIntersect) {
-			if (intersection.t < maxT) {
+		Intersection i = ptr.get()->intersect(ray);
+		if (i.isIntersect) {
+			if (i.t < maxT) {
 				maxT = intersection.t;
 				object = ptr.get();
+				intersection = i;
 			}
 		}
 	}
 	double const bias = 1e-4;
 	if (object) {
 		Color surfaceColor = BLACK;
-		Vector3 const hitPoint = ray.getOrigin() + ray.getDirection() * maxT;
-		Vector3 const normal = (hitPoint - object->getOrigin()).normalized();
+		Vector3 const hitPoint = intersection.hitPoint;
+		Vector3 const normal = intersection.hitNormal;
 		for (auto const& light : this->lights) {
 			double transmission = 1.0;
+			double const t = (light - hitPoint).lengthSquared();
 			Vector3 const lightDirection = (light - hitPoint).normalized();
 			for (auto const& ptr : this->objects) {
+				if (ptr.get() == object) {
+					continue;
+				}
 				auto const r = Ray(hitPoint + normal * bias, lightDirection);
-				Intersection intersection = ptr.get()->intersect(r);
-				if (intersection.isIntersect) {
+				Intersection i = ptr.get()->intersect(r);
+				if (i.isIntersect && i.t > 0 && i.t * i.t < t) {
 					transmission = 0.0;
 					break;
 				}
@@ -49,9 +55,9 @@ Color Scene::traceRay(Ray const& ray) const {
 }
 
 void Scene::createImage(std::string const fileName) const {
-	int height = 400;
-	int width = 400;
-	int samplingAmount = 100;
+	int height = 800;
+	int width = 800;
+	int samplingAmount = 20;
 	const char* imageFileName = fileName.c_str();
 
 	std::ofstream ofs(imageFileName, std::ios::out | std::ios::binary);

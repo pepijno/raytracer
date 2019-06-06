@@ -6,8 +6,11 @@
 struct Intersection {
 	bool isIntersect;
 	double t;
+	Vector3 hitPoint;
+	Vector3 hitNormal;
 
-	Intersection(bool const isI, double const ti): isIntersect(isI), t(ti) {};
+	Intersection(bool const isI): isIntersect(isI), t(0.0), hitPoint(Vector3()), hitNormal(Vector3()) {};
+	Intersection(bool const isI, double const ti, Vector3 const hP, Vector3 const hN): isIntersect(isI), t(ti), hitPoint(hP), hitNormal(hN) {};
 };
 
 struct Color {
@@ -19,6 +22,7 @@ struct Color {
 	Color operator*(double const d) { return Color(this->R * d, this->G * d, this->B * d); };
 	Color operator/(double const d) { return Color(this->R / d, this->G / d, this->B / d); };
 	Color operator+(Color const d) { return Color(this->R + d.R, this->G + d.G, this->B + d.B); };
+	bool operator==(Color const d) { return this->R == d.R && this->G == d.G && this->B == d.B; };
 };
 
 inline std::ostream& operator<<(std::ostream& str, Color const c) {
