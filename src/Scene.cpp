@@ -77,9 +77,9 @@ void Scene::createImage(std::string const fileName) const {
 			}
 			color = color / samplingAmount;
 
-			ofs << (unsigned char)(std::min(double(255), std::max(double(0), color.R)))
-				<< (unsigned char)(std::min(double(255), std::max(double(0), color.G)))
-				<< (unsigned char)(std::min(double(255), std::max(double(0), color.B)));
+			ofs << (unsigned char)(255 * std::min(1.0, std::max(0.0, color.R)))
+				<< (unsigned char)(255 * std::min(1.0, std::max(0.0, color.G)))
+				<< (unsigned char)(255 * std::min(1.0, std::max(0.0, color.B)));
 		}
 	}
 
