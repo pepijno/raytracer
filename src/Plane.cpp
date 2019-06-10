@@ -17,5 +17,5 @@ Intersection Plane::intersect(Ray const& ray) const {
 
 	Vector3 const hitPoint = ray.getOrigin() + ray.getDirection() * t;
 	Vector3 const hitNormal = (d < 0 ? this->normal : this->normal * -1);
-	return Intersection(true, t, hitPoint, hitNormal);
+	return Intersection(true, t, hitPoint, hitNormal, ray);
 }

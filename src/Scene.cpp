@@ -10,23 +10,11 @@ void Scene::addObject(Object* object) {
 	this->objects.emplace_back(std::move(object));
 }
 
-std::default_random_engine re;
-
-Vector3 randomInUnitSphere() {
-	std::uniform_real_distribution<double> unif(-1.0, 1.0);
-	Vector3 p;
-	do {
-		p = Vector3(unif(re), unif(re), unif(re));
-	} while (p.lengthSquared() >= 1.0);
-	return p;
-}
-
 int8_t const MAX_DEPTH = 5;
 
 Color Scene::traceRay(Ray const& ray, int8_t const depth) const {
-	Color color = WHITE;
 	if (depth >= MAX_DEPTH) {
-		return color;
+		return BLACK;
 	}
 	double maxT = std::numeric_limits<double>::max();
 	Object* object = nullptr;
@@ -41,16 +29,10 @@ Color Scene::traceRay(Ray const& ray, int8_t const depth) const {
 			}
 		}
 	}
-	double const bias = 1e-4;
 	if (object) {
-		Color surfaceColor = BLACK;
-		Vector3 const hitPoint = intersection.hitPoint;
-		Vector3 const normal = intersection.hitNormal;
-		Vector3 const target = (normal + randomInUnitSphere()).normalized();
-		Color recursiveColor = this->traceRay(Ray(hitPoint + target * bias, target), depth + 1);
-		color = object->getColor(hitPoint) * recursiveColor * 0.8;
+		return object->getColor(intersection, this, depth);
 	}
-	return color;
+	return WHITE;
 }
 
 void Scene::createImage(std::string const fileName) const {
@@ -64,6 +46,7 @@ void Scene::createImage(std::string const fileName) const {
 	ofs << "P6\n" << width << " " << height << "\n255\n";
 
 	std::uniform_real_distribution<double> u(-0.5, 0.5);
+	std::default_random_engine re;
 	for(int i = 0; i < height; ++i) {
 		for(int j = 0; j < width; ++j) {
 			Color color = BLACK;

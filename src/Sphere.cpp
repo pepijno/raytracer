@@ -23,10 +23,10 @@ Intersection Sphere::intersect(Ray const& ray) const {
 		double const t = tca + thc;
 		Vector3 const hitPoint = rayOrigin + direction * t;
 		Vector3 const normal = (hitPoint - this->getOrigin()).normalized();
-		return Intersection(true, t, hitPoint, normal);
+		return Intersection(true, t, hitPoint, normal, ray);
 	}
 	double const t = tca - thc;
 	Vector3 const hitPoint = rayOrigin + direction * t;
 	Vector3 const normal = (hitPoint - this->getOrigin()).normalized();
-	return Intersection(true, t, hitPoint, normal);
+	return Intersection(true, t, hitPoint, normal, ray);
 }

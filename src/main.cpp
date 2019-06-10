@@ -6,9 +6,10 @@
 int main () {
 	Camera camera(Vector3(-1.0, 0.0, 0.0), Vector3(0.0, -1.0, 1.0), Vector3(0.0, 1.0, 1.0), Vector3(0.0, -1.0, -1.0));
 	Scene scene(camera);
-	scene.addObject(new Sphere(Vector3(3.0, 0.0, 0.0), Material(Color(1.0, 0, 0), false), 1.0));
-	scene.addObject(new Sphere(Vector3(6.0, -1.0, 1.0), Material(Color(0, 0, 1.0), false), 2.0));
-	scene.addObject(new Plane(Vector3(0.0, 1.0, 0.0), Material(Color(1.0, 1.0, 1.0), true), Vector3(0.0, 1.0, 0.0)));
+	scene.addObject(new Sphere(Vector3(3.0, 0.0, 0.0), new Diffuse(Color(1.0, 0, 0), 0.8), 1.0));
+	scene.addObject(new Sphere(Vector3(6.0, -1.0, 3.0), new Metal(Color(0.8, 0.8, 1.0), 0.8, 0.2), 2.0));
+	scene.addObject(new Sphere(Vector3(40.0, -9.0, -8.0), new Diffuse(Color(0, 1.0, 0.0), 0.8), 10.0));
+	scene.addObject(new Plane(Vector3(0.0, 1.0, 0.0), new Diffuse(Color(0.7, 0.7, 0.7), 0.8), Vector3(0.0, 1.0, 0.0)));
 	scene.createImage("test.ppm");
 
 	return 0;

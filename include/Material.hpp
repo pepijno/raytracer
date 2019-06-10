@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Intersection.hpp"
 #include <cmath>
 
 struct Color {
@@ -24,20 +25,29 @@ inline std::ostream& operator<<(std::ostream& str, Color const c) {
 Color const BLACK = Color(0.0);
 Color const WHITE = Color(1.0);
 
+class Scene;
+
 struct Material {
 	Color color;
-	bool isCheckered;
 
-	Material(Color const c, bool const i): color(c), isCheckered(i) {};
+	Material(Color const c): color(c) {};
+	virtual ~Material() {};
 
-	Color getColor(Vector3 const hitPoint) const {
-		if (this->isCheckered) {
-			int const s = std::floor(hitPoint.getX());
-			int const t = std::floor(hitPoint.getZ());
-			if (((s + t) % 2) == 0) {
-				return BLACK;
-			}
-		}
-		return this->color;
-	};
+	virtual Color const getColor(Intersection const intersection, Scene const* scene, int8_t const depth) = 0;
+};
+
+struct Diffuse : public Material {
+	double albedo;
+
+	Diffuse(Color const c, double const a) : Material(c), albedo(a) {};
+
+	virtual Color const getColor(Intersection const intersection, Scene const* scene, int8_t const depth);
+};
+
+struct Metal : public Diffuse {
+	double fuzz;
+
+	Metal(Color const c, double const a, double const f) : Diffuse(c, a), fuzz(f) {};
+
+	Color const getColor(Intersection const intersection, Scene const* scene, int8_t const depth);
 };
