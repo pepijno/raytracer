@@ -4,16 +4,30 @@
 #include <limits>
 #include <random>
 
+#include <iostream>
+
 void Scene::addObject(Object* object) {
 	this->objects.emplace_back(std::move(object));
 }
 
-void Scene::addLight(Vector3 source) {
-	this->lights.push_back(source);
+std::default_random_engine re;
+
+Vector3 randomInUnitSphere() {
+	std::uniform_real_distribution<double> unif(-1.0, 1.0);
+	Vector3 p;
+	do {
+		p = Vector3(unif(re), unif(re), unif(re));
+	} while (p.lengthSquared() >= 1.0);
+	return p;
 }
 
-Color Scene::traceRay(Ray const& ray) const {
-	Color color = BLACK;
+int8_t const MAX_DEPTH = 5;
+
+Color Scene::traceRay(Ray const& ray, int8_t const depth) const {
+	Color color = WHITE;
+	if (depth >= MAX_DEPTH) {
+		return color;
+	}
 	double maxT = std::numeric_limits<double>::max();
 	Object* object = nullptr;
 	Intersection intersection(false);
@@ -32,48 +46,32 @@ Color Scene::traceRay(Ray const& ray) const {
 		Color surfaceColor = BLACK;
 		Vector3 const hitPoint = intersection.hitPoint;
 		Vector3 const normal = intersection.hitNormal;
-		for (auto const& light : this->lights) {
-			double transmission = 1.0;
-			double const t = (light - hitPoint).lengthSquared();
-			Vector3 const lightDirection = (light - hitPoint).normalized();
-			for (auto const& ptr : this->objects) {
-				if (ptr.get() == object) {
-					continue;
-				}
-				auto const r = Ray(hitPoint + normal * bias, lightDirection);
-				Intersection i = ptr.get()->intersect(r);
-				if (i.isIntersect && i.t > 0 && i.t * i.t < t) {
-					transmission = 0.0;
-					break;
-				}
-			}
-			surfaceColor = surfaceColor + object->getColor(hitPoint) * transmission * std::max(0.0, normal.innerProduct(lightDirection));
-		}
-		color = surfaceColor;
+		Vector3 const target = (normal + randomInUnitSphere()).normalized();
+		Color recursiveColor = this->traceRay(Ray(hitPoint + target * bias, target), depth + 1);
+		color = object->getColor(hitPoint) * recursiveColor * 0.8;
 	}
 	return color;
 }
 
 void Scene::createImage(std::string const fileName) const {
-	int height = 800;
-	int width = 800;
-	int samplingAmount = 20;
+	int height = 400;
+	int width = 400;
+	int samplingAmount = 1000;
 	const char* imageFileName = fileName.c_str();
 
 	std::ofstream ofs(imageFileName, std::ios::out | std::ios::binary);
 
 	ofs << "P6\n" << width << " " << height << "\n255\n";
 
-	std::uniform_real_distribution<double> unif(-0.5, 0.5);
-	std::default_random_engine re;
+	std::uniform_real_distribution<double> u(-0.5, 0.5);
 	for(int i = 0; i < height; ++i) {
 		for(int j = 0; j < width; ++j) {
 			Color color = BLACK;
 			for(int s = 0; s < samplingAmount; ++s) {
-				double const dw = unif(re);
-				double const dh = unif(re);
+				double const dw = u(re);
+				double const dh = u(re);
 				Ray ray = this->camera.createRay(i, j, (double)(width + dw), (double)(height + dh));
-				color = color + this->traceRay(ray);
+				color = color + this->traceRay(ray, 0);
 			}
 			color = color / samplingAmount;
 
