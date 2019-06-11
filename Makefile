@@ -1,5 +1,5 @@
 CC=g++
-CPPFLAGS=-std=c++1y -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
+CPPFLAGS=-std=c++1z -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pthread
 MAIN=main.o
 EXECUTABLE=bin/raytracer
 INCLDIR=include/
@@ -13,7 +13,7 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
 COMPILE.cc = $(CC) $(DEPFLAGS) $(CPPFLAGS) -I$(INCLDIR) -c
 POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
 
-all: CPPFLAGS += -O2
+all: CPPFLAGS += -Og
 all: $(EXECUTABLE)
 
 game: CPPFLAGS += -DGAME

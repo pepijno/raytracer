@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include <taskflow/taskflow.hpp>
+
 void Scene::addObject(Object* object) {
 	this->objects.emplace_back(std::move(object));
 }
@@ -35,9 +37,9 @@ Color Scene::traceRay(Ray const& ray, int8_t const depth) const {
 	return WHITE;
 }
 
-void Scene::createImage(std::string const fileName) const {
-	int height = 400;
-	int width = 400;
+void Scene::createImage(std::string const fileName, size_t const numThreads) const {
+	size_t const height = 1600;
+	size_t const width = 1600;
 	int samplingAmount = 1000;
 	const char* imageFileName = fileName.c_str();
 
@@ -45,19 +47,37 @@ void Scene::createImage(std::string const fileName) const {
 
 	ofs << "P6\n" << width << " " << height << "\n255\n";
 
+	std::vector<std::vector<Color>> colors(height, std::vector<Color>(width));
+
 	std::uniform_real_distribution<double> u(-0.5, 0.5);
 	std::default_random_engine re;
-	for(int i = 0; i < height; ++i) {
-		for(int j = 0; j < width; ++j) {
-			Color color = BLACK;
-			for(int s = 0; s < samplingAmount; ++s) {
-				double const dw = u(re);
-				double const dh = u(re);
-				Ray ray = this->camera.createRay(i, j, (double)(width + dw), (double)(height + dh));
-				color = color + this->traceRay(ray, 0);
+	auto func = [&](size_t const from, size_t const to) {
+		for(size_t i = 0; i < height; ++i) {
+			for(size_t j = from; j < to; ++j) {
+				Color color = BLACK;
+				for(int s = 0; s < samplingAmount; ++s) {
+					double const dw = u(re);
+					double const dh = u(re);
+					Ray ray = this->camera.createRay(i, j, (double)(width + dw), (double)(height + dh));
+					color = color + this->traceRay(ray, 0);
+				}
+				color = color / samplingAmount;
+				colors.at(i).at(j) = color;
 			}
-			color = color / samplingAmount;
+		}
+	};
 
+	double const frac = std::ceil(static_cast<double>(width) / numThreads);
+	tf::Taskflow taskflow;
+
+	for (size_t i = 0; i < numThreads; ++i) {
+		taskflow.silent_emplace([func, frac, i] () { func(i * frac, std::min((i + 1) * frac, static_cast<double>(width))); });
+	}
+	tf::Executor().run(taskflow);
+
+	for(size_t i = 0; i < height; ++i) {
+		for(size_t j = 0; j < width; ++j) {
+			Color color = colors.at(i).at(j);
 			ofs << (unsigned char)(255 * std::min(1.0, std::max(0.0, color.R)))
 				<< (unsigned char)(255 * std::min(1.0, std::max(0.0, color.G)))
 				<< (unsigned char)(255 * std::min(1.0, std::max(0.0, color.B)));

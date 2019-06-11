@@ -7,6 +7,7 @@ struct Color {
 	double R = 0.0;
 	double G = 0.0;
 	double B = 0.0;
+	Color() {};
 	Color(double const i) : R(i), G(i), B(i) {};
 	Color(double const Ri, double const Gi, double const Bi) : R(Ri), G(Gi), B(Bi) {};
 
@@ -48,6 +49,14 @@ struct Metal : public Diffuse {
 	double fuzz;
 
 	Metal(Color const c, double const a, double const f) : Diffuse(c, a), fuzz(f) {};
+
+	Color const getColor(Intersection const intersection, Scene const* scene, int8_t const depth);
+};
+
+struct Dielectric : public Material {
+	double refractionIndex;
+
+	Dielectric(Color const c, double const r) : Material(c), refractionIndex(r) {};
 
 	Color const getColor(Intersection const intersection, Scene const* scene, int8_t const depth);
 };

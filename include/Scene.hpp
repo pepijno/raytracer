@@ -18,7 +18,7 @@ public:
 
 	void addObject(Object* object);
 
-	void createImage(std::string const fileName) const;
+	void createImage(std::string const fileName, size_t const numThreads) const;
 
 	Color traceRay(Ray const& ray, int8_t const depth) const;
 };
