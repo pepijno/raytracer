@@ -18,14 +18,14 @@ Color Scene::traceRay(Ray const& ray, int8_t const depth) const {
 	if (depth >= MAX_DEPTH) {
 		return BLACK;
 	}
-	double maxT = std::numeric_limits<double>::max();
+	double minT = std::numeric_limits<double>::max();
 	Object* object = nullptr;
 	Intersection intersection(false);
 	for (auto const& ptr : this->objects) {
 		Intersection i = ptr.get()->intersect(ray);
 		if (i.isIntersect) {
-			if (i.t < maxT) {
-				maxT = intersection.t;
+			if (i.t < minT) {
+				minT = i.t;
 				object = ptr.get();
 				intersection = i;
 			}
@@ -38,9 +38,9 @@ Color Scene::traceRay(Ray const& ray, int8_t const depth) const {
 }
 
 void Scene::createImage(std::string const fileName, size_t const numThreads) const {
-	size_t const height = 1600;
-	size_t const width = 1600;
-	int samplingAmount = 1000;
+	size_t const height = 400;
+	size_t const width = 400;
+	int samplingAmount = 100;
 	const char* imageFileName = fileName.c_str();
 
 	std::ofstream ofs(imageFileName, std::ios::out | std::ios::binary);
@@ -58,7 +58,9 @@ void Scene::createImage(std::string const fileName, size_t const numThreads) con
 				for(int s = 0; s < samplingAmount; ++s) {
 					double const dw = u(re);
 					double const dh = u(re);
-					Ray ray = this->camera.createRay(i, j, (double)(width + dw), (double)(height + dh));
+					double const x = static_cast<double>(j + dw) / width;
+					double const y = static_cast<double>(i + dh) / height;
+					Ray ray = this->camera.createRay(x, y);
 					color = color + this->traceRay(ray, 0);
 				}
 				color = color / samplingAmount;
