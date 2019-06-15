@@ -16,19 +16,22 @@ private:
 	Vector3 screenDL;
 	Vector3 horizontal;
 	Vector3 vertical;
+	Vector3 u, v, w;
+	double lensRadius;
 public:
-	Camera(Vector3 const lookFrom, Vector3 const lookAt, Vector3 const vup, double const vofv, double const aspect) {
+	Camera(Vector3 const lookFrom, Vector3 const lookAt, Vector3 const vup, double const vofv, double const aspect, double const aperture, double const focusDistance) {
+		this->lensRadius = aperture / 2.0;
 		double const theta = vofv * pi() / 180;
 		double const halfHeight = std::tan(theta / 2);
 		double const halfWidth = aspect * halfHeight;
-		Vector3 const w = (lookFrom - lookAt).normalized();
-		Vector3 const u = vup.outerProduct(w).normalized();
-		Vector3 const v = w.outerProduct(u);
+		this->w = (lookFrom - lookAt).normalized();
+		this->u = vup.outerProduct(w).normalized();
+		this->v = this->w.outerProduct(u);
 		this->origin = lookFrom;
-		this->screenDL = this->origin - u * halfWidth - v * halfHeight - w;
-		this->horizontal = u * 2 * halfWidth;
-		this->vertical = v * 2 * halfHeight;
+		this->screenDL = this->origin - this->u * halfWidth * focusDistance - this->v * halfHeight * focusDistance - this->w * focusDistance;
+		this->horizontal = u * 2 * halfWidth * focusDistance;
+		this->vertical = v * 2 * halfHeight * focusDistance;
 	};
 
-	Ray createRay(double const maxWidth, double const maxHeight) const;
+	Ray createRay(double const s, double const t) const;
 };

@@ -38,9 +38,9 @@ Color Scene::traceRay(Ray const& ray, int8_t const depth) const {
 }
 
 void Scene::createImage(std::string const fileName, size_t const numThreads) const {
-	size_t const height = 400;
-	size_t const width = 400;
-	int samplingAmount = 100;
+	size_t const height = 1600;
+	size_t const width = 1600;
+	int samplingAmount = 1000;
 	const char* imageFileName = fileName.c_str();
 
 	std::ofstream ofs(imageFileName, std::ios::out | std::ios::binary);
@@ -53,6 +53,9 @@ void Scene::createImage(std::string const fileName, size_t const numThreads) con
 	std::default_random_engine re;
 	auto func = [&](size_t const from, size_t const to) {
 		for(size_t i = 0; i < height; ++i) {
+			if (((i + 1) % 100) == 0) {
+				std::cout << i << "\n";
+			}
 			for(size_t j = from; j < to; ++j) {
 				Color color = BLACK;
 				for(int s = 0; s < samplingAmount; ++s) {
